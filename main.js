@@ -144,18 +144,12 @@ app.on('before-quit', function(event){
 
     // delay quit, so the sockets can close
     setTimeout(function(){
-        killedSockets = true;
-
         ethereumNode.stop().then(function() {
+            killedSockets = true;
             app.quit(); 
         });
     }, 500);
 });
-
-
-
-
-const NODE_TYPE = 'geth';
 
 
 var mainWindow;
@@ -185,10 +179,12 @@ app.on('ready', function() {
     // MIST
     if(global.mode === 'mist') {
         mainWindow = Windows.create('main', {
+            primary: true,
             electronOptions: {
                 width: 1024 + 208,
                 height: 720,
                 webPreferences: {
+                    nodeIntegration: true,
                     preload: __dirname +'/modules/preloader/mistUI.js',
                     'overlay-fullscreen-video': true,
                     'overlay-scrollbars': true
@@ -201,6 +197,7 @@ app.on('ready', function() {
     // WALLET
     } else {
         mainWindow = Windows.create('main', {
+            primary: true,
             electronOptions: {
                 width: 1100,
                 height: 720,
@@ -214,6 +211,7 @@ app.on('ready', function() {
     }
 
     splashWindow = Windows.create('splash', {
+        primary: true,
         url: global.interfacePopupsUrl + '#splashScreen_'+ global.mode,
         show: true,
         electronOptions: {
@@ -313,9 +311,8 @@ app.on('ready', function() {
                     log.info('No accounts setup yet, lets do onboarding first.');
 
                     return new Q((resolve, reject) => {
-                        splashWindow.hide();
-
                         var onboardingWindow = Windows.createPopup('onboardingScreen', {
+                            primary: true,
                             electronOptions: {
                                 width: 576,
                                 height: 442,
@@ -355,6 +352,8 @@ app.on('ready', function() {
 
                             resolve();
                         });
+
+                        splashWindow.hide();
                     });
                 }
             })
@@ -374,7 +373,6 @@ app.on('ready', function() {
     }); /* on splash screen loaded */
 
 }); /* on app ready */
-
 
 
 

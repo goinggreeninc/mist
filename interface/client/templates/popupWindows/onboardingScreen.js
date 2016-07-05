@@ -96,7 +96,7 @@ Template['popupWindows_onboardingScreen'].helpers({
             // Calculates a block t display that is always getting 1% closer to target
             syncing._displayBlock = (syncing._displayBlock + (syncing.currentBlock - syncing._displayBlock) / 100 )|| syncing.currentBlock;            
 
-            syncing._displayStatesDownload = Number(syncing._displayStatesDownload + (syncing.pulledStates/syncing.knownStates - syncing._displayStatesDownload) / 10 ) || syncing.pulledStates/syncing.knownStates;
+            syncing._displayStatesDownload = Number(syncing._displayStatesDownload + (syncing.pulledStates/syncing.knownStates - syncing._displayStatesDownload) / 100 ) || syncing.pulledStates/syncing.knownStates;
 
 
             // Calculates progress
@@ -111,10 +111,8 @@ Template['popupWindows_onboardingScreen'].helpers({
             // Saves the data back to the object
             TemplateVar.set(template, 'syncing', syncing);
 
-            console.log('number', Number(syncing.statesPercent), Number(syncing.statesPercent) < 90)
-
             // Only show states if they are less than 50% downloaded
-            if (Number(syncing.statesPercent)  > 0 && Number(syncing.statesPercent) < 90) {
+            if (Math.round(1000*Number(syncing._displayStatesDownload)) != Math.round(1000*Number(syncing.pulledStates/syncing.knownStates))) {
                 TemplateVar.set(template, "syncStatusMessageLive", TAPi18n.__('mist.popupWindows.onboarding.syncMessageWithStates', syncing));
             } else {
                 TemplateVar.set(template, "syncStatusMessageLive", TAPi18n.__('mist.popupWindows.onboarding.syncMessage', syncing));
@@ -256,9 +254,9 @@ Template['popupWindows_onboardingScreen_importAccount'].events({
     /**
     On show password
 
-    @event click #show-password
+    @event click .show-password
     */
-   'click #show-password': function(e){
+   'click .show-password': function(e){
         TemplateVar.set('showPassword', e.currentTarget.checked)
     },
     /**
@@ -324,6 +322,18 @@ The onboardingScreen password template
 @constructor
 */
 
+Template['popupWindows_onboardingScreen_password'].helpers({
+    /**
+    Show password
+
+    @method showPassword
+    */
+    'passwordInputType': function() {
+        return TemplateVar.get('passwordInputType')? 'text' : 'password' ;
+    }
+})
+
+
 Template['popupWindows_onboardingScreen_password'].events({
     /**
     Clear the form
@@ -333,6 +343,14 @@ Template['popupWindows_onboardingScreen_password'].events({
    'click button[type="button"]': function(e, template){
         template.find('input.password').value = '';
         template.find('input.password-repeat').value = '';
+    },
+    /**
+    On show password
+
+    @event click .show-password
+    */
+   'click .show-password': function(e){
+        TemplateVar.set('passwordInputType', e.currentTarget.checked)
     },
     /**
     Password checks
